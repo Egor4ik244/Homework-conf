@@ -1,0 +1,17 @@
+start: dictionary
+
+dictionary: "{" entry* "}"
+entry: NAME ":" value ";"
+
+?value: NUMBER
+      | STRING
+      | dictionary
+
+NAME: /[a-z]+/
+NUMBER: /[+-]?\d+\.?\d*[eE][+-]?\d+/
+STRING: /q\([^)]*\)/
+COMMENT: /#[^\r\n]*/
+
+%import common.WS
+%ignore WS
+%ignore COMMENT
