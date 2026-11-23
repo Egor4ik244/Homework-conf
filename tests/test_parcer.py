@@ -58,4 +58,3 @@ class ParserTests(unittest.TestCase):
                 with self.assertRaises(VisitError) as raised:
                     config_to_dict(text)
                 self.assertIsInstance(raised.exception.orig_exc, ValueError)
-                

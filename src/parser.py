@@ -51,7 +51,8 @@ class ConfigTransformer(Transformer):
 
             right = stack.pop()
             left = stack.pop()
-            if not all(isinstance(value, (int, float)) for value in (left, right)):
+            if not all(isinstance(value, (int, float)) 
+                       for value in (left, right)):
                 raise ValueError(f"Операция {item} требует чисел")
 
             result = OPERATIONS[item](left, right)
