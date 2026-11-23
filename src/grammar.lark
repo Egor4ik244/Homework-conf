@@ -1,16 +1,31 @@
-start: dictionary
+start: definition* dictionary
 
+definition: "(" "def" NAME value ")" ";"
 dictionary: "{" entry* "}"
 entry: NAME ":" value ";"
 
 ?value: NUMBER
       | STRING
       | dictionary
+      | expression
+
+expression: "@[" operand+ "]"
+?operand: NUMBER
+        | INTEGER
+        | NAME -> reference
+        | ADD
+        | SUB
+        | POW
 
 NAME: /[a-z]+/
-NUMBER: /[+-]?\d+\.?\d*[eE][+-]?\d+/
+NUMBER.2: /[+-]?\d+\.?\d*[eE][+-]?\d+/
+INTEGER: /[+-]?[0-9]+/
 STRING: /q\([^)]*\)/
 COMMENT: /#[^\r\n]*/
+
+ADD: "+"
+SUB: "-"
+POW.2: "pow()"
 
 %import common.WS
 %ignore WS
