@@ -1,11 +1,14 @@
-from pathlib import Path
-from lark import Lark, Transformer, v_args, Token
 from operator import add, pow as power, sub
+from pathlib import Path
+
+from lark import Lark, Token, Transformer, v_args
+from lark.exceptions import VisitError
 
 GRAMMAR_PATH = Path(__file__).with_name("grammar.lark")
 PARSER = Lark.open(str(GRAMMAR_PATH), parser="lalr")
 OPERATIONS = {"+": add, "-": sub, "pow()": power}
 BINARY_ARITY = 2
+TOKEN_CONVERTERS = {"NAME": str, "NUMBER": float, "INTEGER": int}
 
 def parse_config(text):
     """Разобрать текст конфигурации и вернуть дерево разбора."""
@@ -19,17 +22,19 @@ class ConfigTransformer(Transformer):
         super().__init__()
         self.constans = {}
 
-    def NAME(self, token):
-        return str(token)
+    def __default_token__(self, token):
+        """Преобразует токены значений, сохраняя токены операций."""
+        if token.type == "STRING":
+            return str(token).removeprefix("q(").removesuffix(")")
 
-    def NUMBER(self, token):
-        return float(token)
+        converter = TOKEN_CONVERTERS.get(token.type)
+        if converter is None:
+            return token
 
-    def STRING(self, token):
-        return str(token).removeprefix("q(").removesuffix(")")
-
-    def INTEGER(self, token):
-        return int(token)
+        try:
+            return converter(token)
+        except ValueError as error:
+            raise VisitError(token.type, token, error) from error
 
     def definition(self, name, value):
         self.constans[name] = value
